@@ -1,1 +1,689 @@
-# quanlydiemrenluyennhom2
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UEH DRS 2.0 - Hệ thống Quản lý Điểm rèn luyện</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ueh: '#00635d',
+                        uehOrange: '#f37021'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { transition: background-color 0.4s ease; }
+        
+        .glass-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col" id="body-container">
+
+    <nav class="bg-ueh text-white fixed w-full top-0 z-50 shadow-md h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex items-center justify-between h-full">
+                <div class="flex-shrink-0 font-bold text-2xl tracking-wider cursor-pointer" onclick="switchView('landing-view')">
+                    UEH <span class="text-uehOrange text-sm align-top">DRS</span>
+                </div>
+                
+                <div class="hidden md:flex h-full items-center space-x-2">
+                    <a href="javascript:void(0)" onclick="switchView('landing-view')" class="hover:text-uehOrange px-4 h-full flex items-center font-medium transition">Trang chủ</a>
+                    
+                    <div class="relative group h-full flex items-center cursor-pointer">
+                        <div class="hover:text-uehOrange px-4 h-full flex items-center font-medium transition">
+                            Hoạt động <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </div>
+                        <div class="absolute left-0 top-16 hidden group-hover:block w-56">
+                            <div class="shadow-xl rounded-b-xl bg-white overflow-hidden border border-gray-100 text-gray-700">
+                                <a href="javascript:void(0)" onclick="switchView('all-activities-view')" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block border-b border-gray-100 font-medium transition">Tất cả hoạt động</a>
+                                <a href="javascript:void(0)" onclick="switchView('open-activities-view')" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block border-b border-gray-100 font-medium transition">Hoạt động đang mở</a>
+                                <a href="javascript:void(0)" onclick="switchView('registered-activities-view')" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block rounded-b-xl font-medium transition">Hoạt động đã đăng ký</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative group h-full flex items-center cursor-pointer">
+                        <div class="hover:text-uehOrange px-4 h-full flex items-center font-medium transition">
+                            Yêu cầu <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </div>
+                        <div class="absolute left-0 top-16 hidden group-hover:block w-80">
+                            <div class="shadow-xl rounded-b-xl bg-white overflow-hidden border border-gray-100 text-gray-700">
+                                <a href="javascript:void(0)" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block border-b border-gray-100 font-medium transition"><i class="fas fa-file-upload w-6 text-gray-400"></i> Hồ sơ minh chứng HĐ ngoài UEH</a>
+                                <a href="javascript:void(0)" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block border-b border-gray-100 font-medium transition"><i class="fas fa-leaf w-6 text-gray-400"></i> Phúc khảo GreenCampus</a>
+                                <a href="javascript:void(0)" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block border-b border-gray-100 font-medium transition"><i class="fas fa-star w-6 text-gray-400"></i> Phúc khảo Điểm rèn luyện</a>
+                                <a href="javascript:void(0)" class="hover:bg-gray-100 hover:text-ueh py-3 px-4 block border-b border-gray-100 font-medium transition"><i class="fas fa-history w-6 text-gray-400"></i> Lịch sử phúc khảo</a>
+                                <a href="javascript:void(0)" onclick="switchView('appeal-progress-view')" class="hover:bg-orange-50 text-uehOrange font-bold py-3 px-4 block rounded-b-xl transition"><i class="fas fa-tasks w-6"></i> Tiến trình phúc khảo</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="javascript:void(0)" onclick="switchView('dashboard-view')" class="hover:text-uehOrange px-4 h-full flex items-center font-medium transition">Điểm rèn luyện</a>
+                    <a href="javascript:void(0)" class="hover:text-uehOrange px-4 h-full flex items-center font-medium transition">Hồ sơ</a>
+                    <a href="javascript:void(0)" class="hover:text-uehOrange px-4 h-full flex items-center font-medium transition">Tiện ích</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+
+        <div id="landing-view" class="block animate-[fadeIn_0.5s_ease-out]">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-12 mt-10">
+                <div class="lg:w-1/2 space-y-6">
+                    <h1 class="text-4xl lg:text-5xl font-extrabold text-ueh leading-tight">
+                        Hệ thống Quản lý và Đánh giá kết quả rèn luyện sinh viên
+                        <br><span class="text-uehOrange">(DRS)</span>
+                    </h1>
+                    <p class="text-lg text-gray-600">
+                        Nền tảng số giúp sinh viên chủ động theo dõi kết quả rèn luyện từng học kỳ. Hệ thống góp phần nâng cao hiệu quả quản lý, đảm bảo tính minh bạch, nhất quán và toàn diện.
+                    </p>
+                    <div class="flex space-x-4 pt-4">
+                        <button onclick="openModal('login-modal')" class="bg-ueh hover:bg-[#004f4a] text-white px-6 py-3 rounded-lg font-bold shadow-lg transition transform hover:-translate-y-1">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Đăng nhập vào hệ thống
+                        </button>
+                        <button onclick="switchView('open-activities-view')" class="bg-white hover:bg-gray-50 border-2 border-ueh text-ueh px-6 py-3 rounded-lg font-bold shadow-md transition">
+                            <i class="fas fa-bolt mr-2"></i> Hoạt động đang mở
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:w-1/2 flex justify-center lg:justify-end">
+                    <div class="glass-light rounded-3xl p-8 w-full max-w-md transform hover:scale-105 transition duration-500">
+                        <div class="flex justify-between items-center mb-6 border-b pb-4">
+                            <div class="flex items-center">
+                                <div class="bg-ueh text-white rounded-full w-12 h-12 flex items-center justify-center text-xl shadow-md">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-800">Điểm Rèn Luyện</h3>
+                                    <p class="text-xs text-gray-500">6 mục đánh giá - Tối đa 100đ</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                        </div>
+                        <div class="space-y-4 text-sm font-medium">
+                            <div class="flex justify-between border-b pb-2"><span class="text-gray-600">M1: Học tập, NCKH, Khởi nghiệp</span> <span class="text-ueh font-bold">20/20</span></div>
+                            <div class="flex justify-between border-b pb-2"><span class="text-gray-600">M2: Chấp hành nội quy, quy chế</span> <span class="text-green-600 font-bold">25/25</span></div>
+                            <div class="flex justify-between border-b pb-2"><span class="text-gray-600">M3: Phát triển bền vững, văn hóa</span> <span class="text-ueh font-bold">20/20</span></div>
+                            <div class="flex justify-between border-b pb-2"><span class="text-gray-600">M4: Ý thức công dân, cộng dồng</span> <span class="text-uehOrange font-bold">25/25</span></div>
+                            <div class="flex justify-between border-b pb-2"><span class="text-gray-600">M5: Công tác lớp, đoàn thể</span> <span class="text-red-500 font-bold">10/10</span></div>
+                             <div class="flex justify-between border-b pb-2"><span class="text-gray-600">M6: Điểm cộng đặc biệt</span> <span class="text-red-500 font-bold">10/10</span></div>
+          
+                        </div>
+                        <div class="mt-6 flex justify-between items-center bg-gray-50 rounded-xl p-4 border">
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500 uppercase">Tổng điểm</p>
+                                <p class="text-3xl font-black text-ueh">100</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-xs text-gray-500 uppercase">Xếp loại</p>
+                                <p class="text-xl font-bold text-uehOrange">Xuất sắc</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-view" class="hidden animate-[fadeIn_0.5s_ease-out] bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10 text-center">
+            <div class="py-20">
+                <i class="fas fa-tools text-5xl text-gray-300 mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-600">Điểm Rèn Luyện</h2>
+                <p class="text-gray-500 mt-2">Tính năng này đang trong quá trình phát triển và cập nhật.</p>
+            </div>
+        </div>
+
+        <div id="all-activities-view" class="hidden animate-[fadeIn_0.5s_ease-out]">
+            <div class="mb-6"><h1 class="text-3xl font-bold text-ueh"><i class="fas fa-list-ul mr-2"></i>Tất cả hoạt động</h1></div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+                <input type="text" placeholder="Tìm theo tên hoặc mã hoạt động..." class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-ueh">
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm border-b">
+                                <th class="p-4 font-semibold w-12 text-center">STT</th>
+                                <th class="p-4 font-semibold">Mã hoạt động</th>
+                                <th class="p-4 font-semibold min-w-[250px]">Tên hoạt động</th>
+                                <th class="p-4 font-semibold">Ngày tổ chức</th>
+                                <th class="p-4 font-semibold">Đơn vị tổ chức</th>
+                                <th class="p-4 font-semibold">Tiêu chí</th>
+                                <th class="p-4 font-semibold">Trạng thái</th>
+                                <th class="p-4 font-semibold text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm">
+                            
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-bold text-gray-600 text-center">1</td>
+                                <td class="p-4 text-gray-500 font-mono text-xs border-r border-gray-100 bg-gray-50/50">2026_HKD_Mekong...</td>
+                                <td class="p-4 font-bold text-ueh">Cuộc thi "Accounting's Easy" - Năm 2026</td>
+                                <td class="p-4 text-gray-600 text-xs">Từ 22/03/2026<br>Đến 19/06/2026</td>
+                                <td class="p-4 text-xs font-semibold text-gray-600"><i class="fas fa-building text-ueh mb-1"></i><br>Mekong.SFB</td>
+                                <td class="p-4">
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono mr-1 mb-1">1.8.3.2</span>
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono mb-1">1.8.3.4</span>
+                                </td>
+                                <td class="p-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded text-xs font-bold whitespace-nowrap">Đang mở đăng ký</span></td>
+                                <td class="p-4 text-center"><button onclick="openActivityDetail('open')" class="bg-ueh text-white rounded-full w-8 h-8 hover:bg-uehOrange transition shadow"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-bold text-gray-600 text-center">2</td>
+                                <td class="p-4 text-gray-500 font-mono text-xs border-r border-gray-100 bg-gray-50/50">2026_HKD_Youth...</td>
+                                <td class="p-4 font-bold text-ueh">Chặng 3: Vòng 1: Cuộc thi lựa chọn đội thi tham gia VMOOT Cấp Quốc gia 2026 do Khoa Luật tổ chức</td>
+                                <td class="p-4 text-gray-600 text-xs">Từ 13/04/2026<br>Đến 15/06/2026</td>
+                                <td class="p-4 text-xs font-semibold text-gray-600"><i class="fas fa-building text-ueh mb-1"></i><br>Youth<br><span class="font-normal text-gray-400">Đoàn Thanh niên</span></td>
+                                <td class="p-4">
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono">1.8.3.2</span>
+                                </td>
+                                <td class="p-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded text-xs font-bold whitespace-nowrap">Đang mở đăng ký</span></td>
+                                <td class="p-4 text-center"><button onclick="openActivityDetail('open')" class="bg-ueh text-white rounded-full w-8 h-8 hover:bg-uehOrange transition shadow"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-bold text-gray-600 text-center">3</td>
+                                <td class="p-4 text-gray-500 font-mono text-xs border-r border-gray-100 bg-gray-50/50">2026_HKD_Youth...</td>
+                                <td class="p-4 font-bold text-ueh">Chung kết cuộc thi UEH Research Challenge 2026 do SFR-Nhóm Sinh viên Nghiên cứu Tài chính tổ chức</td>
+                                <td class="p-4 text-gray-600 text-xs">07/06/2026</td>
+                                <td class="p-4 text-xs font-semibold text-gray-600"><i class="fas fa-building text-ueh mb-1"></i><br>Youth</td>
+                                <td class="p-4">
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono">5.3.1.1</span>
+                                </td>
+                                <td class="p-4"><span class="bg-gray-100 text-gray-700 px-3 py-1 rounded text-xs font-bold whitespace-nowrap border border-gray-200">Đã duyệt</span></td>
+                                <td class="p-4 text-center"><button onclick="openActivityDetail('open')" class="bg-ueh text-white rounded-full w-8 h-8 hover:bg-uehOrange transition shadow"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-bold text-gray-600 text-center">4</td>
+                                <td class="p-4 text-gray-500 font-mono text-xs border-r border-gray-100 bg-gray-50/50">2026_HKD_Youth...</td>
+                                <td class="p-4 font-bold text-ueh">Chuỗi Tập huấn cán bộ Đoàn - Hội "Vững chí vươn xa" do khoa Luật tổ chức</td>
+                                <td class="p-4 text-gray-600 text-xs">06/06/2026</td>
+                                <td class="p-4 text-xs font-semibold text-gray-600"><i class="fas fa-building text-ueh mb-1"></i><br>Youth</td>
+                                <td class="p-4">
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono">3.4.2.2</span>
+                                </td>
+                                <td class="p-4"><span class="bg-gray-100 text-gray-700 px-3 py-1 rounded text-xs font-bold whitespace-nowrap border border-gray-200">Đã duyệt</span></td>
+                                <td class="p-4 text-center"><button onclick="openActivityDetail('open')" class="bg-ueh text-white rounded-full w-8 h-8 hover:bg-uehOrange transition shadow"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 font-bold text-gray-600 text-center">5</td>
+                                <td class="p-4 text-gray-500 font-mono text-xs border-r border-gray-100 bg-gray-50/50">2026_HKD_Youth...</td>
+                                <td class="p-4 font-bold text-ueh">Chặng 3: Đêm diễn "Một Khúc Tình Tang" thuộc Chương trình Kỷ niệm 30 năm thành lập CLB Dân Ca: "Tìm về" do CLB Dân Ca tổ chức</td>
+                                <td class="p-4 text-gray-600 text-xs">31/05/2026</td>
+                                <td class="p-4 text-xs font-semibold text-gray-600"><i class="fas fa-building text-ueh mb-1"></i><br>Youth</td>
+                                <td class="p-4">
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono mr-1 mb-1">3.4.2.2</span>
+                                    <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[11px] font-mono mb-1">3.4.2.4</span>
+                                </td>
+                                <td class="p-4"><span class="bg-gray-100 text-gray-700 px-3 py-1 rounded text-xs font-bold whitespace-nowrap border border-gray-200">Đã duyệt</span></td>
+                                <td class="p-4 text-center"><button onclick="openActivityDetail('open')" class="bg-ueh text-white rounded-full w-8 h-8 hover:bg-uehOrange transition shadow"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="open-activities-view" class="hidden animate-[fadeIn_0.5s_ease-out] bg-gray-50">
+            <h1 class="text-2xl font-bold text-ueh mb-6"><i class="fas fa-calendar-check mr-2"></i>Hoạt động đang mở đăng ký</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition flex flex-col border-t-4 border-t-ueh">
+                    <h3 class="text-lg font-bold text-ueh line-clamp-2">Cuộc thi "Accounting's Easy" - Năm 2026</h3>
+                    <p class="text-sm text-gray-500 mt-2 font-medium"><i class="fas fa-building mr-2"></i>Mekong.SFB</p>
+                    <div class="mt-4 flex flex-col space-y-2 pb-4 border-b border-gray-100">
+                        <span class="bg-teal-50 text-ueh w-max text-xs font-bold px-2 py-1 rounded"><i class="fas fa-calendar-alt mr-2"></i>Ngày tổ chức: 19/06/2026</span>
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span class="text-ueh"><i class="fas fa-users mr-2"></i>Số lượng đăng ký:</span>
+                            <span class="text-gray-500">Không giới hạn</span>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 text-yellow-700 text-sm p-3 rounded mt-4 font-medium flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i> Chưa có vai trò nào được tạo cho hoạt động này.
+                    </div>
+                    <div class="mt-auto pt-4 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-mono">Mã: 2026_HKD_Mekong...</span>
+                        <button onclick="openActivityDetail('open')" class="border border-ueh text-ueh px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-ueh hover:text-white transition"><i class="fas fa-info-circle mr-1"></i> Chi tiết</button>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition flex flex-col border-t-4 border-t-ueh">
+                    <h3 class="text-lg font-bold text-ueh line-clamp-2">Chặng 3: Vòng 1: Cuộc thi lựa chọn đội thi tham gia VMOOT Cấp Quốc gia 2026 do Khoa Luật tổ chức</h3>
+                    <p class="text-sm text-gray-500 mt-2 font-medium"><i class="fas fa-building mr-2"></i>Youth</p>
+                    <div class="mt-4 flex flex-col space-y-2 pb-4 border-b border-gray-100">
+                        <span class="bg-teal-50 text-ueh w-max text-xs font-bold px-2 py-1 rounded"><i class="fas fa-calendar-alt mr-2"></i>Ngày tổ chức: 15/06/2026</span>
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span class="text-ueh"><i class="fas fa-users mr-2"></i>Số lượng đăng ký:</span>
+                            <span class="text-gray-500">Không giới hạn</span>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 text-yellow-700 text-sm p-3 rounded mt-4 font-medium flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i> Chưa có vai trò nào được tạo cho hoạt động này.
+                    </div>
+                    <div class="mt-auto pt-4 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-mono">Mã: 2026_HKD_Youth_01...</span>
+                        <button onclick="openActivityDetail('open')" class="border border-ueh text-ueh px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-ueh hover:text-white transition"><i class="fas fa-info-circle mr-1"></i> Chi tiết</button>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition flex flex-col border-t-4 border-t-ueh">
+                    <h3 class="text-lg font-bold text-ueh line-clamp-2">Workshop: Từ lớp học đến cuộc sống: Biến dữ liệu thành lợi thế của bạn trong thời đại số</h3>
+                    <p class="text-sm text-gray-500 mt-2 font-medium"><i class="fas fa-building mr-2"></i>UEH.DSA</p>
+                    <div class="mt-4 flex flex-col space-y-2 pb-4 border-b border-gray-100">
+                        <span class="bg-teal-50 text-ueh w-max text-xs font-bold px-2 py-1 rounded"><i class="fas fa-calendar-alt mr-2"></i>Ngày tổ chức: 26/05/2026</span>
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span class="text-ueh"><i class="fas fa-users mr-2"></i>Số lượng đăng ký:</span>
+                            <span class="text-red-500 font-bold">300 / 300</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-1 mt-1"><div class="bg-red-500 h-1 w-full"></div></div>
+                        <p class="text-red-500 text-xs font-bold mt-1"><i class="fas fa-exclamation-circle mr-1"></i> Đã đủ số lượng đăng ký</p>
+                    </div>
+                    <div class="mt-4 text-sm">
+                        <p class="font-bold text-gray-700"><i class="fas fa-user-tag mr-2 text-ueh"></i>Vai trò tham gia:</p>
+                        <div class="pl-6 mt-1">
+                            <p class="font-bold text-gray-800">Tham gia</p>
+                            <p class="text-xs text-gray-500"><i class="fas fa-tag mr-1"></i>Tiêu chí RL: <span class="font-mono text-ueh">3.4.2.1</span> | <span class="font-bold text-uehOrange">1 điểm</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-mono">Mã: 2026_HKD_UEH_DSA...</span>
+                        <button class="border border-gray-300 text-gray-400 px-4 py-1.5 rounded-full text-sm font-semibold cursor-not-allowed"><i class="fas fa-info-circle mr-1"></i> Chi tiết</button>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition flex flex-col border-t-4 border-t-ueh">
+                    <h3 class="text-lg font-bold text-ueh line-clamp-2">Hoạt động Sinh hoạt chủ điểm và thực hiện CTTN "Trang Sáng" do Đoàn khoa Tài chính công tổ chức</h3>
+                    <p class="text-sm text-gray-500 mt-2 font-medium"><i class="fas fa-building mr-2"></i>Youth</p>
+                    <div class="mt-4 flex flex-col space-y-2 pb-4 border-b border-gray-100">
+                        <span class="bg-teal-50 text-ueh w-max text-xs font-bold px-2 py-1 rounded"><i class="fas fa-calendar-alt mr-2"></i>Ngày tổ chức: 25/05/2026</span>
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span class="text-ueh"><i class="fas fa-users mr-2"></i>Số lượng đăng ký:</span>
+                            <span class="text-green-600 font-bold">43 (Không giới hạn)</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm">
+                        <p class="font-bold text-gray-700"><i class="fas fa-user-tag mr-2 text-ueh"></i>Vai trò tham gia:</p>
+                        <div class="pl-6 mt-1">
+                            <p class="font-bold text-gray-800">Tham gia</p>
+                            <p class="text-xs text-gray-500"><i class="fas fa-tag mr-1"></i>Tiêu chí RL: <span class="font-mono text-ueh">3.4.2.2</span> | <span class="font-bold text-uehOrange">1 điểm</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-mono">Mã: 2026_HKD_Youth_01...</span>
+                        <button onclick="openActivityDetail('open')" class="border border-ueh text-ueh px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-ueh hover:text-white transition"><i class="fas fa-info-circle mr-1"></i> Chi tiết</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="registered-activities-view" class="hidden animate-[fadeIn_0.5s_ease-out]">
+            <div class="mb-6"><h1 class="text-3xl font-bold text-ueh"><i class="fas fa-clipboard-check mr-2"></i>Hoạt động đã đăng ký</h1></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-ueh text-white text-sm border-b">
+                                <th class="p-4 font-semibold w-12 text-center">STT</th>
+                                <th class="p-4 font-semibold min-w-[250px]">Tên hoạt động</th>
+                                <th class="p-4 font-semibold">Thời gian</th>
+                                <th class="p-4 font-semibold">Vai trò</th>
+                                <th class="p-4 font-semibold">Tiêu chí (+Điểm)</th>
+                                <th class="p-4 font-semibold text-center">Trạng thái</th>
+                                <th class="p-4 font-semibold text-center">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm">
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 text-center font-bold text-gray-500">1</td>
+                                <td class="p-4">
+                                    <p class="font-bold text-ueh">Workshop thêu thiệp giấy "Realign" do Đoàn - Hội khoa Kinh tế tổ chức</p>
+                                    <p class="text-xs text-gray-400 font-mono mt-1">Mã: 2026_HKD_Youth_01339_00870</p>
+                                </td>
+                                <td class="p-4 text-gray-600">01/03 - 15/05</td>
+                                <td class="p-4 font-medium text-gray-700">Tham gia</td>
+                                <td class="p-4"><span class="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded text-xs font-bold">M1 (+5đ)</span></td>
+                                <td class="p-4 text-center"><span class="bg-green-50 border border-green-200 text-green-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center"><i class="fas fa-check-circle mr-1"></i> Đã duyệt</span></td>
+                                <td class="p-4 text-center"><button onclick="openActivityDetail('registered')" class="text-ueh hover:text-uehOrange transition"><i class="fas fa-eye text-lg"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="activity-detail-view" class="hidden animate-[fadeIn_0.5s_ease-out] bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10">
+            <button onclick="switchView('open-activities-view')" class="text-gray-500 hover:text-ueh mb-6 transition font-medium">
+                <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+            </button>
+
+            <h1 id="detail-title" class="text-3xl font-extrabold text-ueh mb-3">Cuộc thi "Accounting's Easy" - Năm 2026</h1>
+            
+            <div class="flex flex-wrap gap-4 text-sm font-medium mb-8 pb-6 border-b border-gray-100">
+                <span class="text-gray-600"><i class="fas fa-building mr-2 text-gray-400"></i>Đơn vị: <span id="detail-unit">Mekong.SFB</span></span>
+                <span class="text-ueh bg-teal-50 px-2 py-1 rounded border border-teal-100"><i class="fas fa-calendar-alt mr-2"></i><span id="detail-date">19/06/2026</span></span>
+                <span class="text-gray-600"><i class="fas fa-users mr-2 text-gray-400"></i>Số lượng: <span id="detail-qty">0 (Không giới hạn)</span></span>
+                <span class="text-uehOrange"><i class="fas fa-star mr-2"></i>Tiêu chí: <span id="detail-criteria">M1 (+2 điểm)</span></span>
+            </div>
+
+            <div class="text-gray-700 leading-relaxed space-y-4 mb-10">
+                <h3 class="font-bold text-lg text-gray-800">Mô tả hoạt động:</h3>
+                <p>Hoạt động được tổ chức nhằm tạo ra một sân chơi bổ ích, phát triển tư duy sáng tạo và gắn kết sinh viên UEH.</p>
+                <ul class="list-disc list-inside ml-5 space-y-2 text-gray-600">
+                    <li>Đảm bảo tính trung thực và kỷ luật trong quá trình tham gia.</li>
+                    <li>Điểm rèn luyện sẽ được cập nhật sau khi kết thúc chuỗi sự kiện.</li>
+                </ul>
+            </div>
+
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col md:flex-row items-center justify-between gap-6" id="registration-section">
+                
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <button id="btn-register" onclick="handleRegister()" class="bg-ueh hover:bg-[#004f4a] text-white px-8 py-3 rounded-lg font-bold shadow-md transition transform hover:-translate-y-1 flex items-center justify-center whitespace-nowrap">
+                        <i class="fas fa-user-plus mr-2"></i> + Đăng ký tham gia
+                    </button>
+
+                    <div id="registered-state" class="hidden flex items-center gap-4">
+                        <button onclick="cancelRegistration()" class="group bg-green-50 text-green-700 border border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-6 py-3 rounded-lg font-bold flex items-center transition shadow-sm whitespace-nowrap">
+                            <i class="fas fa-check-circle mr-2 group-hover:hidden"></i>
+                            <span class="group-hover:hidden">Đã đăng ký</span>
+                            <i class="fas fa-times-circle mr-2 hidden group-hover:inline-block"></i>
+                            <span class="hidden group-hover:inline-block">Hủy đăng ký</span>
+                        </button>
+
+                        <div class="relative">
+                            <button id="bell-btn" onclick="toggleBellMenu(event)" class="p-3 bg-white border border-gray-300 rounded-full hover:bg-gray-100 transition shadow-sm text-gray-600 focus:outline-none">
+                                <i class="fas fa-bell text-xl text-ueh" id="bell-icon"></i>
+                            </button>
+                            <div id="bell-dropdown" class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden w-56 bg-white shadow-2xl rounded-xl border border-gray-100 overflow-hidden z-50">
+                                <button onclick="setNotification('all')" class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition border-b border-gray-50">
+                                    <i class="fas fa-bell fa-shake text-ueh w-5 text-center"></i>
+                                    <div><p class="text-sm font-bold text-gray-800">Tất cả</p></div>
+                                </button>
+                                <button onclick="setNotification('personalized')" class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition border-b border-gray-50">
+                                    <i class="far fa-bell text-gray-600 w-5 text-center"></i>
+                                    <div><p class="text-sm font-bold text-gray-800">Dành riêng</p></div>
+                                </button>
+                                <button onclick="setNotification('none')" class="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition">
+                                    <i class="fas fa-bell-slash text-gray-400 w-5 text-center"></i>
+                                    <div><p class="text-sm font-bold text-gray-800">Không nhận</p></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/3 bg-white border border-gray-200 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-gray-500 uppercase"><i class="fas fa-bullseye text-uehOrange mr-1"></i> Mục tiêu</span>
+                        <span class="text-xs font-bold text-ueh">85/100đ (Tốt)</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 mb-2">
+                        <div id="progress-fill" class="bg-gradient-to-r from-ueh to-teal-400 h-2 rounded-full relative transition-all duration-1000" style="width: 85%">
+                            <span class="absolute -right-1 -top-1 flex h-4 w-4">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                              <span id="progress-dot" class="relative inline-flex rounded-full h-4 w-4 bg-teal-500 border-2 border-white"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <p id="gamification-text" class="text-[12px] text-gray-500 leading-tight">Tham gia hoạt động này sẽ giúp bạn đạt <strong class="text-gray-700">85/100</strong> điểm rèn luyện.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="appeal-progress-view" class="hidden animate-[fadeIn_0.5s_ease-out] bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10">
+            <h1 class="text-3xl font-extrabold text-ueh mb-2"><i class="fas fa-tasks mr-3"></i>Tiến trình phúc khảo</h1>
+            <p class="text-gray-500 mb-8">Theo dõi trạng thái xử lý các yêu cầu phúc khảo của bạn theo thời gian thực.</p>
+
+            <div class="border border-gray-200 rounded-xl p-6 relative overflow-hidden max-w-3xl">
+                <div class="absolute top-6 right-6 bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
+                    Đang xử lý
+                </div>
+                
+                <h3 class="font-bold text-xl text-gray-800 mb-1">Phúc khảo điểm hoạt động "Mùa Hè Xanh 2026"</h3>
+                <p class="text-sm text-gray-500 mb-8">Mã đơn: <span class="font-mono bg-gray-100 px-1 rounded">PK2026_09912</span> • Gửi ngày: 10/06/2026</p>
+
+                <div class="relative pl-2 md:pl-4">
+                    <div class="absolute left-[1.35rem] md:left-[1.85rem] top-2 bottom-6 w-0.5 bg-gray-200"></div>
+                    
+                    <div class="relative flex items-start mb-8">
+                        <div class="bg-green-500 rounded-full w-8 h-8 flex items-center justify-center z-10 ring-4 ring-white shadow-sm mt-0.5">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                        <div class="ml-4 md:ml-6">
+                            <h4 class="font-bold text-gray-800 text-lg">Đã gửi yêu cầu</h4>
+                            <p class="text-sm text-gray-500 mt-1">Hệ thống đã tiếp nhận đơn khiếu nại và minh chứng của bạn.</p>
+                            <span class="text-xs text-gray-400 inline-block mt-1"><i class="far fa-clock mr-1"></i>10/06/2026 08:30</span>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-start mb-8">
+                        <div class="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center z-10 ring-4 ring-blue-50 shadow-md mt-0.5 animate-pulse">
+                            <i class="fas fa-spinner fa-spin text-white text-xs"></i>
+                        </div>
+                        <div class="ml-4 md:ml-6">
+                            <h4 class="font-bold text-blue-600 text-lg">Khoa/Viện đang tiếp nhận và xử lý</h4>
+                            <p class="text-sm text-gray-600 mt-1">Cán bộ phụ trách đang đối chiếu minh chứng của bạn với dữ liệu danh sách điểm danh.</p>
+                            <span class="text-xs font-semibold text-blue-500 bg-blue-50 px-2 py-1 rounded inline-block mt-2">Dự kiến hoàn thành: 15/06/2026</span>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-start">
+                        <div class="bg-gray-200 border-2 border-white rounded-full w-8 h-8 flex items-center justify-center z-10 ring-4 ring-white mt-0.5">
+                            <i class="fas fa-flag-checkered text-gray-400 text-xs"></i>
+                        </div>
+                        <div class="ml-4 md:ml-6">
+                            <h4 class="font-bold text-gray-400 text-lg">Hoàn tất & Cập nhật điểm</h4>
+                            <p class="text-sm text-gray-400 mt-1">Điểm rèn luyện sẽ được cập nhật trực tiếp vào hệ thống nếu khiếu nại hợp lệ.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3"></div>
+
+    <div id="login-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+            <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl">&times;</button>
+            <div class="text-center mb-8"><h2 class="text-2xl font-bold text-ueh">Đăng Nhập</h2></div>
+        </div>
+    </div>
+
+    <script>
+        function switchView(viewId) {
+            const allViews = ['landing-view', 'dashboard-view', 'all-activities-view', 'open-activities-view', 'registered-activities-view', 'activity-detail-view', 'appeal-progress-view'];
+            allViews.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function openActivityDetail(status) {
+            switchView('activity-detail-view');
+
+            const title = document.getElementById('detail-title');
+            const unit = document.getElementById('detail-unit');
+            const date = document.getElementById('detail-date');
+            const qty = document.getElementById('detail-qty');
+            const criteria = document.getElementById('detail-criteria');
+            
+            const gamificationText = document.getElementById('gamification-text');
+            const btnRegister = document.getElementById('btn-register');
+            const registeredState = document.getElementById('registered-state');
+            const progressFill = document.getElementById('progress-fill');
+            const progressDot = document.getElementById('progress-dot');
+
+            if (status === 'registered') {
+                // Đổi thành dữ liệu Workshop
+                title.innerText = 'Workshop thêu thiệp giấy "Realign" do Đoàn - Hội khoa Kinh tế tổ chức';
+                unit.innerText = 'Đoàn - Hội Khoa Kinh tế';
+                date.innerText = '01/03 - 15/05/2026';
+                qty.innerText = 'Đã đủ số lượng';
+                criteria.innerText = 'M1 (+5 điểm)';
+                
+                gamificationText.innerHTML = 'Tuyệt vời! Bạn <strong class="text-green-600">đã đạt được mục tiêu 85/100</strong> điểm rèn luyện.';
+                progressFill.classList.replace('from-ueh', 'from-green-500');
+                progressFill.classList.replace('to-teal-400', 'to-green-400');
+                progressDot.classList.replace('bg-teal-500', 'bg-green-500');
+                
+                btnRegister.classList.add('hidden');
+                registeredState.classList.remove('hidden');
+                setNotification('all'); 
+                
+            } else {
+                // Trả về dữ liệu Cuộc thi Accounting mặc định
+                title.innerText = 'Cuộc thi "Accounting\'s Easy" - Năm 2026';
+                unit.innerText = 'Mekong.SFB';
+                date.innerText = '19/06/2026';
+                qty.innerText = '0 (Không giới hạn)';
+                criteria.innerText = 'M1 (+2 điểm)';
+                
+                gamificationText.innerHTML = 'Tham gia hoạt động này sẽ giúp bạn đạt <strong class="text-gray-700">85/100</strong> điểm rèn luyện.';
+                progressFill.classList.replace('from-green-500', 'from-ueh');
+                progressFill.classList.replace('to-green-400', 'to-teal-400');
+                progressDot.classList.replace('bg-green-500', 'bg-teal-500');
+                
+                btnRegister.classList.remove('hidden');
+                registeredState.classList.add('hidden');
+            }
+        }
+
+        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+        
+        window.onclick = function(event) {
+            if (event.target.classList.contains('fixed')) {
+                event.target.classList.add('hidden');
+            }
+            const bellMenu = document.getElementById('bell-dropdown');
+            const bellBtn = document.getElementById('bell-btn');
+            if (bellMenu && !bellMenu.classList.contains('hidden') && !bellBtn.contains(event.target) && !bellMenu.contains(event.target)) {
+                bellMenu.classList.add('hidden');
+            }
+        }
+
+        function handleRegister() {
+            document.getElementById('btn-register').classList.add('hidden');
+            document.getElementById('registered-state').classList.remove('hidden');
+            
+            const progressFill = document.getElementById('progress-fill');
+            const progressDot = document.getElementById('progress-dot');
+            const gamificationText = document.getElementById('gamification-text');
+            
+            gamificationText.innerHTML = 'Tuyệt vời!<strong class="text-green-600"> Điểm dự kiến của bạn là 85/100</strong>.';
+            progressFill.classList.replace('from-ueh', 'from-green-500');
+            progressFill.classList.replace('to-teal-400', 'to-green-400');
+            progressDot.classList.replace('bg-teal-500', 'bg-green-500');
+
+            setNotification('all'); 
+            showToast('fas fa-check-circle', 'text-green-500', 'Đăng ký thành công!', 'Bạn đã ghi danh tham gia hoạt động này.');
+        }
+
+        function cancelRegistration() {
+            if (confirm("Bạn có chắc chắn muốn hủy đăng ký tham gia hoạt động này không?")) {
+                document.getElementById('registered-state').classList.add('hidden');
+                document.getElementById('btn-register').classList.remove('hidden');
+                
+                const progressFill = document.getElementById('progress-fill');
+                const progressDot = document.getElementById('progress-dot');
+                const gamificationText = document.getElementById('gamification-text');
+                
+                gamificationText.innerHTML = 'Tham gia hoạt động này sẽ giúp bạn đạt <strong class="text-gray-700">85/100</strong> điểm rèn luyện.';
+                progressFill.classList.replace('from-green-500', 'from-ueh');
+                progressFill.classList.replace('to-green-400', 'to-teal-400');
+                progressDot.classList.replace('bg-green-500', 'bg-teal-500');
+
+                showToast('fas fa-info-circle', 'text-gray-500', 'Đã hủy đăng ký', 'Hệ thống đã ghi nhận bạn hủy tham gia hoạt động.');
+                document.getElementById('bell-dropdown').classList.add('hidden');
+            }
+        }
+
+        function toggleBellMenu(event) {
+            event.stopPropagation();
+            document.getElementById('bell-dropdown').classList.toggle('hidden');
+        }
+
+        function setNotification(type) {
+            const bellIcon = document.getElementById('bell-icon');
+            bellIcon.className = ''; 
+            document.getElementById('bell-dropdown').classList.add('hidden');
+
+            let title, msg, iconClass, colorClass;
+
+            if (type === 'all') {
+                bellIcon.className = 'fas fa-bell fa-shake text-ueh text-xl';
+                title = 'Đã bật thông báo (Tất cả)';
+                msg = 'Hệ thống sẽ báo cho bạn khi sắp đến ngày sự kiện diễn ra và khi có điểm rèn luyện.';
+                iconClass = 'fas fa-bell';
+                colorClass = 'text-ueh';
+            } else if (type === 'personalized') {
+                bellIcon.className = 'far fa-bell text-gray-600 text-xl';
+                title = 'Đã bật thông báo (Dành riêng)';
+                msg = 'Bạn sẽ chỉ nhận được các cập nhật quan trọng nhất từ BTC.';
+                iconClass = 'far fa-bell';
+                colorClass = 'text-gray-600';
+            } else if (type === 'none') {
+                bellIcon.className = 'fas fa-bell-slash text-gray-400 text-xl';
+                title = 'Đã tắt thông báo';
+                msg = 'Bạn sẽ không nhận được thông báo đẩy cho hoạt động này.';
+                iconClass = 'fas fa-bell-slash';
+                colorClass = 'text-gray-400';
+            }
+
+            showToast(iconClass, colorClass, title, msg);
+        }
+
+        function showToast(iconClass, colorClass, title, message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = 'bg-white border border-gray-200 shadow-2xl rounded-xl p-4 flex items-start gap-3 w-80 transform transition-all duration-500 translate-y-10 opacity-0';
+            toast.innerHTML = `
+                <div class="mt-1 ${colorClass}">
+                    <i class="${iconClass} text-2xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-gray-800">${title}</h4>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">${message}</p>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
